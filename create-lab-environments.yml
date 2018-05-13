@@ -1,0 +1,8 @@
+- hosts: servers
+  become: yes
+  roles:
+  - host
+  - compute
+  - osp_controller
+  - contrail_controller
+  - vbmc

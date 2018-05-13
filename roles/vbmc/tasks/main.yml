@@ -1,0 +1,50 @@
+- name: install role packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ role_packages }}"
+
+
+# create vbmc
+- name: create vmbc for compute
+  shell: |
+    vbmc add "env-{{ item }}-compute" --port "20{{ item }}01"
+    vbmc start "env-{{ item }}-compute"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: create vmbc for controller
+  shell: |
+    vbmc add "env-{{ item }}-controller" --port "20{{ item }}02"
+    vbmc start "env-{{ item }}-controller"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: create vmbc for contrail
+  shell: |
+    vbmc add "env-{{ item }}-contrail" --port "20{{ item }}03"
+    vbmc start "env-{{ item }}-contrail"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+# destroy vbmc
+- name: delete vmbc for compute
+  shell: |
+    vbmc stop "env-{{ item }}-compute" || true
+    vbmc delete "env-{{ item }}-compute" || true
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment
+
+- name: delete vmbc for controller
+  shell: |
+    vbmc stop "env-{{ item }}-controller" || true
+    vbmc delete "env-{{ item }}-controller" || true
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment
+
+- name: delete vmbc for contrail
+  shell: |
+    vbmc stop "env-{{ item }}-contrail" || true
+    vbmc delete "env-{{ item }}-contrail" || true
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment

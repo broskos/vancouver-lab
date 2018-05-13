@@ -1,0 +1,94 @@
+- name: install role packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ role_packages }}"
+
+- name: create openstack repo files
+  copy:
+    src: "{{ item }}"
+    dest: /etc/yum.repos.d/
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+  - CentOS-QEMU-EV.repo
+  - CentOS-OpenStack-queens.repo
+
+- name: create openstack repo gpg files
+  copy:
+    src: "{{ item }}"
+    dest: /etc/pki/rpm-gpg/
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+  - RPM-GPG-KEY-CentOS-SIG-Virtualization
+  - RPM-GPG-KEY-CentOS-SIG-Cloud
+
+- name: Start / Enable libvirtd
+  service:
+    name: libvirtd
+    state: started
+    enabled: yes
+
+- name: Start / Enable firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: open ports for vbmc
+  firewalld:
+    port: 20000-20100/udp
+    permanent: true
+    state: enabled
+
+# build networks
+- name: define OSP network for each environment
+  virt_net:
+    command: define
+    name: "env-{{ item }}-ospnet"
+    xml: '{{ lookup("template", "osp-network.j2") }}'
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: start OSP network for each environment
+  virt_net:
+    state: active
+    name: "env-{{ item }}-ospnet"
+    autostart: yes
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: define Contrail network for each environment
+  virt_net:
+    command: define
+    name: "env-{{ item }}-contrailnet"
+    xml: '{{ lookup("template", "contrail-network.j2") }}'
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: start Contrail network for each environment
+  virt_net:
+    state: active
+    name: "env-{{ item }}-contrailnet"
+    autostart: yes
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+
+# destroy networks
+- name: remove OSP network for each environment
+  virt_net:
+    state: absent
+    name: "env-{{ item }}-ospnet"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment
+
+- name: remove Contrail network for each environment
+  virt_net:
+    state: absent
+    name: "env-{{ item }}-contrailnet"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment

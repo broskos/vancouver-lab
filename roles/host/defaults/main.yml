@@ -1,0 +1,21 @@
+role_packages:
+  - libguestfs-tools
+  - libvirt
+  - qemu-kvm
+  - virt-install
+  - libguestfs-xfs
+  - python-lxml
+  - firewalld
+
+  # - centos-release-openstack-queens. the qemu-ev repofile seems broken, I'll just copy create these from files
+
+
+
+lab_network:
+# network 10.10.16.0/22 gw 10.10.16.2
+  - start: 100
+  - end: 250
+  - gateway: 10.10.16.2
+  - prefix: 22
+  - dns:
+      - 8.8.8.8

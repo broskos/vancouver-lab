@@ -1,0 +1,49 @@
+# create
+- name: Create env-{{ item }}-compute.qcow2 file when qcow does not exist
+  command: qemu-img create -f qcow2 "{{ kvm_images_path }}/env-{{ item }}-compute.qcow2" "{{disk}}"
+  args:
+    creates: "{{ kvm_images_path }}/env-{{ item }}-compute.qcow2"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: create virtual machine in kvm
+  command: virt-install
+      --ram "{{ ram }}" --vcpus "{{ vcpus }}" --os-variant rhel7
+      --disk path="{{ kvm_images_path }}/env-{{ item }}-compute.qcow2",device=disk,bus=virtio,format=qcow2
+      --import --noautoconsole --vnc --autostart
+      --name "env-{{item}}-compute"
+      --network network="env-{{item}}-ospnet",model=virtio
+      --network network="env-{{item}}-contrailnet",model=virtio
+  args:
+    creates: "/etc/libvirt/qemu/env-{{ item }}-compute.xml"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  tags: create_vm
+  when: destroy_environment is undefined
+
+- name: register ospnet mac address
+  shell: virsh domiflist "env-{{ item }}-compute" |grep ospnet| awk '{print $5}'
+  register: compute_out
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+  tags: check-mac
+
+- set_fact:
+    compute_macs: "{{ compute_macs|default({}) | combine( {item.item: item.stdout} ) }}"
+  with_items: "{{ compute_out.results }}"
+  when: destroy_environment is undefined
+  tags: check-mac
+
+# destroy
+- name: remove virtual machine in kvm
+  virt:
+    name: "env-{{item}}-compute"
+    state: destroyed
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment
+
+- name: remove qcow file
+  file:
+    path: "{{ kvm_images_path }}/env-{{ item }}-compute.qcow2"
+    state: absent
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment

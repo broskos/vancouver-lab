@@ -1,0 +1,5 @@
+[servers]
+10.10.16.110
+
+[servers:vars]
+ansible_user=root
