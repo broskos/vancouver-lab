@@ -1,0 +1,53 @@
+# create
+- name: Create env-#-undercloud.qcow files from backing file undercloud.qcow2
+  command: qemu-img create -f qcow2 -b "{{ kvm_images_path }}/undercloud.qcow2" "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+  args:
+    creates: "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: set undercloud lab ip address
+    command: |
+      virt-customize -a "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2" --run-command 'cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
+      DEVICE="eth0"
+      ONBOOT="yes"
+      TYPE="Ethernet"
+      PEERDNS="yes"
+      IPV6INIT="no"
+      IPADDR="{{ undercloud_ip }}"
+      PREFIX=22
+      GATEWAY=10.10.16.2
+      DNS1=8.8.8.8
+      EOF'
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is undefined
+
+- name: create virtual machine in kvm
+  command: virt-install
+      --ram "{{ ram }}" --vcpus "{{ vcpus }}" --os-variant rhel7
+      --disk path="{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2",device=disk,bus=virtio,format=qcow2
+      --import --noautoconsole --vnc --autostart
+      --name "env-{{item}}-undercloud"
+      --network type=direct,source="{{ lab_nic }}",model=virtio
+      --network network="env-{{item}}-ospnet",model=virtio
+  args:
+    creates: "/etc/libvirt/qemu/env-{{ item }}-undercloud.xml"
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  tags: create_vm
+  when: destroy_environment is undefined
+
+
+# destroy
+- name: remove virtual machine in kvm
+  virt:
+    name: "env-{{item}}-undercloud"
+    state: destroyed
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment
+
+- name: remove qcow file
+  file:
+    path: "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+    state: absent
+  with_sequence: start=1 end={{ virtual_environment_count }}
+  when: destroy_environment is defined and destroy_environment
