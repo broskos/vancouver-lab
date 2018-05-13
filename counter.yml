@@ -1,0 +1,32 @@
+
+- hosts: servers
+  vars:
+    starting_ip: 101
+    my_server: {}
+  tasks:
+  - name: set instances to 8 unless memory < 250000
+    set_fact:
+      instances: 8
+    when:  ansible_memtotal_mb >= 250000
+
+  - name: set instances to 4
+    set_fact:
+      instances: 4
+    when:  ansible_memtotal_mb < 250000
+
+  - name: create dict with server and starting ip
+    set_fact:
+      my_server: "{{ my_server|combine( {inventory_hostname: starting_ip} ) }}"
+
+  - name: write to local file
+    copy:
+      content: "{{ my_server }}"
+      dest: "myoutput.txt"
+    delegate_to: localhost
+
+  - name: increment starting ip
+    set_fact:
+      starting_ip: "{{ starting_ip|int + instances|int }}"
+
+  - debug:
+      var: starting_ip
