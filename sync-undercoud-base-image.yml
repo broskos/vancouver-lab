@@ -15,5 +15,21 @@
 - hosts: servers
   gather_facts: no
   become: yes
-  roles:
-  - distribute_undercloud_qcow2
+  tasks:
+
+  - name: put keys from .112 onto other servers
+    lineinfile:
+      line: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDcQNtPo/pt9MYg2LF8lHtvVMFJpnipvuYwLbowFy/5nWq8GYwsJL3kV/cRpUTWDeEiQELPElQ2SVzlcd1Fj+KetpxguNJMbDvsiVis0oqO1ohYsQEEUOG1kQMaD7Ye/tXtI+sAF4FfdeC/BMrXZhq0c5qktiJg11eSOrcOMrQXbkrCn0VPe6lQLdN+MCZ4BFh+9kX6L/9rojxA7CIZBw6Hj/drZOJeuyCfDLLsxYyYKfNcX2qZxBTJp0gH4NIN++q6njtGarL5r86Cgsr7V33j+dTGDZuPsLxrA+EQZC7Ulz/45fjUPm3g9lB4wsQP84xvdyuFw9vBqiH9BlrVaTWj root@dc80-controller-1
+      path: /root/.ssh/authorized_keys
+      mode: 0600
+      owner: root
+      group: root
+
+  - name: distribute qcow2 file from 10.10.16.112 server to servers group
+    synchronize:
+      src: "{{ kvm_images_path }}/undercloud.qcow2"
+      dest: "{{ kvm_images_path }}/undercloud.qcow2"
+      rsync_opts:
+        - "--sparse"
+      archive: no
+    delegate_to: 10.10.16.112
