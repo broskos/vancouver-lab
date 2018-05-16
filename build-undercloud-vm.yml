@@ -1,4 +1,4 @@
-- hosts: 10.10.16.110
+- hosts: 10.10.16.112
   vars:
     source_image: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
     disk: 100G
@@ -7,10 +7,10 @@
     kvm_images_path: /var/lib/libvirt/images
     centos_image: CentOS-7-x86_64-GenericCloud.qcow2
     root_password: rd0c0ntrail123
-    lab_nic: eno1
+    lab_nic: br-labnet
     undercloud_ip: 10.10.17.100
     undercloud_user: root
-    undercloud_password: rd0c0ntrail
+    undercloud_password: rd0c0ntrail123
 
   tasks:
 
@@ -39,7 +39,7 @@
         --import --noautoconsole --vnc --autostart
         --name "temp-undercloud"
         --network type=direct,source="{{ lab_nic }}",model=virtio
-        --network network="env-1-ospnet",model=virtio
+        --network network=default,model=virtio
     args:
       creates: "/etc/libvirt/qemu/temp-undercloud.xml"
 

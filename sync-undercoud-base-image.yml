@@ -1,0 +1,19 @@
+- hosts: 10.10.16.112
+  gather_facts: no
+  become: yes
+  tasks:
+
+  - name: ensure temp-undercloud is not running
+    virt:
+      name: temp-undercloud
+      state: destroyed
+    ignore_errors: yes
+
+  - name: try to shrink image on source server
+    shell: virt-sparsify --in-place "{{ kvm_images_path }}/undercloud.qcow2"
+
+- hosts: servers
+  gather_facts: no
+  become: yes
+  roles:
+  - distribute_undercloud_qcow2

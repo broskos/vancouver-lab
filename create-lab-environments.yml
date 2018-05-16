@@ -6,5 +6,4 @@
   - osp_controller
   - contrail_controller
   - vbmc
-  - distribute_undercloud_qcow2
   - undercloud
