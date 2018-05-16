@@ -6,7 +6,7 @@
     group: root
     mode: 0644
   when: destroy_environment is undefined
-  notifies: restart network
+  notify: restart network
 
 - name: add interface to br-labnet
   template:
@@ -16,7 +16,7 @@
     group: root
     mode: 0644
   when: destroy_environment is undefined
-  notifies: restart network
+  notify: restart network
 
 
 - name: flush the handlers so the ip moves to the bridge
@@ -78,7 +78,7 @@
     port: 20100-21100/udp
     permanent: true
     state: enabled
-  notifies: reload firewalld
+  notify: reload firewalld
 
 # build networks
 - name: define OSP network for each environment

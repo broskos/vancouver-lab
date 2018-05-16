@@ -159,28 +159,28 @@
       owner: root
       group: root
       mode: 0644
-    notifies: restart network
+    notify: restart network
 
   - name: set iptables rules
     lineinfile:
       path: /etc/sysconfig/iptables
       line: -A FORWARD -i br-ctlplane -o eth0 -j ACCEPT
       insertafter: '^-A FORWARD -i docker0 -o docker0 -j ACCEPT'
-    notifies: restart iptables
+    notify: restart iptables
 
   - name: set iptables rules
     lineinfile:
       path: /etc/sysconfig/iptables
       line: -A FORWARD -i eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
       insertafter: '^-A FORWARD -i docker0 -o docker0 -j ACCEPT'
-    notifies: restart iptables
+    notify: restart iptables
 
   - name: set iptables rules
     lineinfile:
       path: /etc/sysconfig/iptables
       line: -A POSTROUTING -o eth0 -j MASQUERADE
       insertafter: '^-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE'
-    notifies: restart iptables
+    notify: restart iptables
 
   - name: create images dir
     become_user: stack
