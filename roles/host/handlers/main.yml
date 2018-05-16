@@ -1,4 +1,4 @@
-- name: Restart Network
+- name: restart network
   shell: sleep 2 && systemctl restart network
   async: 1
   poll: 0

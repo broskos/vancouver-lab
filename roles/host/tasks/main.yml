@@ -1,21 +1,23 @@
 - name: create br-labnet bridge
   template:
-    src: ifcfg-br-labnet
+    src: ifcfg-br-labnet.j2
     dest: /etc/sysconfig/network-scripts/ifcfg-br-labnet
     owner: root
     group: root
     mode: 0644
+    backup: no
   when: destroy_environment is undefined
   notify: restart network
 
 - name: add interface to br-labnet
   template:
-    src: ifcfg-interface
+    src: ifcfg-interface.j2
     dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
     owner: root
     group: root
     mode: 0644
-  when: destroy_environment is undefined
+    backup: no
+  when: "destroy_environment is undefined and ansible_default_ipv4.interface != 'br-labnet'"
   notify: restart network
 
 
