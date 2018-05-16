@@ -1,26 +1,93 @@
 # create
+
 - name: Create env-#-undercloud.qcow files from backing file undercloud.qcow2
   command: qemu-img create -f qcow2 -b "{{ kvm_images_path }}/undercloud.qcow2" "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
   args:
     creates: "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: set undercloud lab ip address
-    command: |
-      virt-customize -a "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2" --run-command 'cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
-      DEVICE="eth0"
-      ONBOOT="yes"
-      TYPE="Ethernet"
-      PEERDNS="yes"
-      IPV6INIT="no"
-      IPADDR="{{ undercloud_ip }}"
-      PREFIX=22
-      GATEWAY=10.10.16.2
-      DNS1=8.8.8.8
-      EOF'
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  command: |
+    virt-customize -a "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2" --run-command 'cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
+    DEVICE="eth0"
+    ONBOOT="yes"
+    TYPE="Ethernet"
+    PEERDNS="yes"
+    IPV6INIT="no"
+    IPADDR="10.10.17.{{starting_ip|int + item|int -1 }}"
+    PREFIX=22
+    GATEWAY=10.10.16.2
+    DNS1=8.8.8.8
+    EOF'
+  args:
+    creates: "/etc/libvirt/qemu/env-{{ item }}-undercloud.xml"
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
+
+- name: set undercloud hostname and instack-env.json
+  command: |
+    virt-customize -a "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+    --hostname "{{ ansible_hostname }}-env-{{ item }}-undercloud.local"
+    --run-command 'cat << EOF > /home/stack/instack-env.json
+    {
+      "nodes": [
+        {
+          "mac": [
+            "{{ compute_macs[item] }}"
+          ],
+          "name": "compute",
+          "cpu": "4",
+          "memory": "8192",
+          "disk": "42",
+          "arch": "x86_64",
+          "pm_user": "root",
+          "pm_addr": "{{ inventory_hostname }}",
+          "pm_password": "password",
+          "pm_type": "pxe_ipmitool",
+          "pm_port": "20{{ item }}01",
+          "capabilities": "profile:compute,boot_option:local"
+        },
+        {
+          "mac": [
+            "{{ controller_macs[item] }}"
+          ],
+          "name": "controller",
+          "cpu": "4",
+          "memory": "8192",
+          "disk": "42",
+          "arch": "x86_64",
+          "pm_user": "root",
+          "pm_addr": "{{ inventory_hostname }}",
+          "pm_password": "password",
+          "pm_type": "pxe_ipmitool",
+          "pm_port": "20{{ item }}02",
+          "capabilities": "profile:control,boot_option:local"
+        },
+        {
+          "mac": [
+            "{{ contrail_macs[item] }}"
+          ],
+          "name": "contrail",
+          "cpu": "4",
+          "memory": "8192",
+          "disk": "42",
+          "arch": "x86_64",
+          "pm_user": "root",
+          "pm_addr": "{{ inventory_hostname }}",
+          "pm_password": "password",
+          "pm_type": "pxe_ipmitool",
+          "pm_port": "20{{ item }}03",
+          "capabilities": "profile:contrail,boot_option:local"
+        }
+      ]
+    }
+    EOF'
+  args:
+    creates: "/etc/libvirt/qemu/env-{{ item }}-undercloud.xml"
+  with_sequence: start=1 end={{ instances }}
+  when: destroy_environment is undefined
+  tags: hostname
 
 - name: create virtual machine in kvm
   command: virt-install
@@ -28,26 +95,32 @@
       --disk path="{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2",device=disk,bus=virtio,format=qcow2
       --import --noautoconsole --vnc --autostart
       --name "env-{{item}}-undercloud"
-      --network type=direct,source="{{ lab_nic }}",model=virtio
+      --network bridge=br-labnet,model=virtio
       --network network="env-{{item}}-ospnet",model=virtio
   args:
     creates: "/etc/libvirt/qemu/env-{{ item }}-undercloud.xml"
-  with_sequence: start=1 end={{ virtual_environment_count }}
-  tags: create_vm
+  with_sequence: start=1 end={{ instances }}
+  tags: create_undercloud_vm
   when: destroy_environment is undefined
 
-
 # destroy
-- name: remove virtual machine in kvm
+- name: stop virtual machine in kvm
   virt:
     name: "env-{{item}}-undercloud"
     state: destroyed
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment
+  ignore_errors: yes
+
+- name: remove virtual machine in kvm
+  command: virsh undefine "env-{{item}}-undercloud"
+  with_sequence: start=1 end={{ instances }}
+  when: destroy_environment is defined and destroy_environment
+  ignore_errors: yes
 
 - name: remove qcow file
   file:
     path: "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
     state: absent
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment

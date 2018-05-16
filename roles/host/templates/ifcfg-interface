@@ -1,0 +1,7 @@
+TYPE=Ethernet
+NAME={{ ansible_default_ipv4.interface }}
+DEVICE={{ ansible_default_ipv4.interface }}
+ONBOOT=yes
+BRIDGE=br-labnet
+BOOTPROTO=none
+NM_CONTROLLED=no

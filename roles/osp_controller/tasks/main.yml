@@ -2,7 +2,7 @@
   command: qemu-img create -f qcow2 "{{ kvm_images_path }}/env-{{ item }}-controller.qcow2" "{{disk}}"
   args:
     creates: "{{ kvm_images_path }}/env-{{ item }}-controller.qcow2"
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: create virtual machine in kvm
@@ -14,13 +14,13 @@
       --network network="env-{{item}}-ospnet",model=virtio
   args:
     creates: "/etc/libvirt/qemu/env-{{ item }}-controller.xml"
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: register ospnet mac address
   shell: virsh domiflist "env-{{ item }}-controller" |grep ospnet| awk '{print $5}'
   register: controller_out
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
   tags: check-mac
 
@@ -36,16 +36,23 @@
 #  tags: check-mac
 
 # destroy
-- name: remove virtual machine in kvm
+- name: stop virtual machine in kvm
   virt:
     name: "env-{{item}}-controller"
     state: destroyed
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment
+  ignore_errors: yes
+
+- name: remove virtual machine in kvm
+  command: virsh undefine "env-{{item}}-controller"
+  with_sequence: start=1 end={{ instances }}
+  when: destroy_environment is defined and destroy_environment
+  ignore_errors: yes
 
 - name: remove qcow file
   file:
     path: "{{ kvm_images_path }}/env-{{ item }}-controller.qcow2"
     state: absent
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment

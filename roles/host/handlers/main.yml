@@ -1,0 +1,8 @@
+- name: Restart Network
+  shell: sleep 2 && systemctl restart network
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: reload firewalld
+  shell: firewall-cmd --reload

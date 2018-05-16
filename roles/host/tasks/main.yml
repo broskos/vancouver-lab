@@ -1,3 +1,38 @@
+- name: create br-labnet bridge
+  template:
+    src: ifcfg-br-labnet
+    dest: /etc/sysconfig/network-scripts/ifcfg-br-labnet
+    owner: root
+    group: root
+    mode: 0644
+  when: destroy_environment is undefined
+  notifies: restart network
+
+- name: add interface to br-labnet
+  template:
+    src: ifcfg-interface
+    dest: /etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}
+    owner: root
+    group: root
+    mode: 0644
+  when: destroy_environment is undefined
+  notifies: restart network
+
+
+- name: flush the handlers so the ip moves to the bridge
+  meta: flush_handlers
+
+- name: Wait for SSH on the Instance # must run from local host because host can't reach instance with macvtap network
+  become: no
+  wait_for:
+    port: 22
+    host: "{{ inventory_hostname }}"
+    search_regex: OpenSSH
+    delay: 5
+    timeout: 300
+  delegate_to: localhost
+  when: destroy_environment is undefined
+
 - name: install role packages
   yum:
     name: "{{ item }}"
@@ -40,9 +75,10 @@
 
 - name: open ports for vbmc
   firewalld:
-    port: 20000-20100/udp
+    port: 20100-21100/udp
     permanent: true
     state: enabled
+  notifies: reload firewalld
 
 # build networks
 - name: define OSP network for each environment
@@ -50,7 +86,7 @@
     command: define
     name: "env-{{ item }}-ospnet"
     xml: '{{ lookup("template", "osp-network.j2") }}'
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: start OSP network for each environment
@@ -58,7 +94,7 @@
     state: active
     name: "env-{{ item }}-ospnet"
     autostart: yes
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: define Contrail network for each environment
@@ -66,7 +102,7 @@
     command: define
     name: "env-{{ item }}-contrailnet"
     xml: '{{ lookup("template", "contrail-network.j2") }}'
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: start Contrail network for each environment
@@ -74,21 +110,20 @@
     state: active
     name: "env-{{ item }}-contrailnet"
     autostart: yes
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
-
 
 # destroy networks
 - name: remove OSP network for each environment
   virt_net:
     state: absent
     name: "env-{{ item }}-ospnet"
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment
 
 - name: remove Contrail network for each environment
   virt_net:
     state: absent
     name: "env-{{ item }}-contrailnet"
-  with_sequence: start=1 end={{ virtual_environment_count }}
+  with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment

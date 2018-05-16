@@ -1,0 +1,9 @@
+DEVICE=br-labnet
+TYPE=Bridge
+IPADDR="{{ inventory_hostname }}"
+PREFIX=22
+ONBOOT=yes
+GATEWAY=10.10.16.2
+DNS1=8.8.8.8
+NM_CONTROLLED=no
+

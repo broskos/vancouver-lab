@@ -1,0 +1,6 @@
+#- name: distribute qcow2 file from 10.10.16.110 server to servers group
+#  synchronize:
+#    src: "{{ kvm_images_path }}/undercloud.qcow2"
+#    dest: "{{ kvm_images_path }}/undercloud.qcow2"
+#  delegate_to: 10.10.16.110
+#  tags: image_copy
