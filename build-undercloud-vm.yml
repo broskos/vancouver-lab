@@ -92,27 +92,33 @@
     hostname:
       name: temp-undercloud.local
 
-  - name: create openstack repo files
-    copy:
-      src: "roles/host/files/{{ item }}"
-      dest: /etc/yum.repos.d/
-      owner: root
-      group: root
-      mode: 0644
-    with_items:
-    - CentOS-QEMU-EV.repo
-    - CentOS-OpenStack-queens.repo
+#  - name: create openstack repo files
+#    copy:
+#      src: "roles/host/files/{{ item }}"
+#      dest: /etc/yum.repos.d/
+#      owner: root
+#      group: root
+#      mode: 0644
+#    with_items:
+#    - CentOS-QEMU-EV.repo
+#    - CentOS-OpenStack-queens.repo
+#
+#  - name: create openstack repo gpg files
+#    copy:
+#      src: "roles/host/files/{{ item }}"
+#      dest: /etc/pki/rpm-gpg/
+#      owner: root
+#      group: root
+#      mode: 0644
+#    with_items:
+#    - RPM-GPG-KEY-CentOS-SIG-Virtualization
+#    - RPM-GPG-KEY-CentOS-SIG-Cloud
 
-  - name: create openstack repo gpg files
-    copy:
-      src: "roles/host/files/{{ item }}"
-      dest: /etc/pki/rpm-gpg/
-      owner: root
-      group: root
-      mode: 0644
-    with_items:
-    - RPM-GPG-KEY-CentOS-SIG-Virtualization
-    - RPM-GPG-KEY-CentOS-SIG-Cloud
+  - name: use trunk repos
+    command: |
+      tripeo_repos=`python -c 'import requests;r = requests.get("https://trunk.rdoproject.org/centos7-queens/current"); print r.text ' |grep python2-tripleo-repos|awk -F"href=\"" '{print $2}'|awk -F"\"" '{print $1}'`
+      yum install -y https://trunk.rdoproject.org/centos7-queens/current/${tripeo_repos}
+      tripleo-repos -b queens current
 
   - name: install role packages
     yum:
@@ -134,7 +140,7 @@
   - name: create stack user
     user:
       name: stack
-      password: rd0c0ntrail123
+      password: "{{ undercloud_password }}"
       groups: wheel,docker
 
   - name: setup undercloud.conf
