@@ -26,9 +26,10 @@
   when: destroy_environment is undefined
 
 - name: set undercloud hostname and instack-env.json
+  become: stack
   command: |
     virt-customize -a "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
-    --hostname "{{ ansible_hostname }}-env-{{ item }}-undercloud.local"
+    --hostname "env-{{ item }}-undercloud.local"
     --run-command 'cat << EOF > /home/stack/instack-env.json
     {
       "nodes": [
@@ -78,11 +79,22 @@
           "pm_password": "password",
           "pm_type": "pxe_ipmitool",
           "pm_port": "20{{ item }}03",
-          "capabilities": "profile:contrail,boot_option:local"
+          "capabilities": "profile:contrail-controller,boot_option:local"
         }
       ]
     }
     EOF'
+    --run-command 'cat << EOF > /home/stack/deploy_rdo_contrail.sh
+    openstack overcloud deploy --templates tripleo-heat-templates \
+    -e docker_registry.yaml \
+    -e tripleo-heat-templates/environments/network-isolation.yaml \
+    -e tripleo-heat-templates/environments/docker.yaml \
+    -e tripleo-heat-templates/extraconfig/pre_deploy/rhel-registration/environment-rhel-registration.yaml \
+    -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
+    -e tripleo-heat-templates/environments/contrail/contrail-net.yaml \
+    --roles-file tripleo-heat-templates/roles_data_contrail_aio.yaml
+    EOF'
+    --run-command 'chmod +x /home/stack/deploy_rdo_contrail.sh'
   args:
     creates: "/etc/libvirt/qemu/env-{{ item }}-undercloud.xml"
   with_sequence: start=1 end={{ instances }}

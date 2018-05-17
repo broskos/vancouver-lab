@@ -1,4 +1,4 @@
-ram: 16384
-vcpus: 4
+ram: 24576
+vcpus: 8
 lab_nic: eno1
 
