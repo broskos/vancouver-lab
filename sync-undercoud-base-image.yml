@@ -38,6 +38,12 @@
       archive: no
     delegate_to: 10.10.16.112
 
+  - name: create images directory if needed
+    file:
+      path: /virt-sdb/images
+      state: directory
+      mode: 0755
+
   - name: make a second copy locally of undercloud.qcow2 in /virt-sdb/images
     synchronize:
       src: "{{ kvm_images_path }}/undercloud.qcow2"
