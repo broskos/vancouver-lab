@@ -35,7 +35,8 @@
       dest: "{{ kvm_images_path }}/undercloud.qcow2"
       rsync_opts:
         - "--sparse"
-      archive: no
+      archive: yes
+      partial: yes
     delegate_to: 10.10.16.112
 
   - name: create images directory if needed
@@ -45,9 +46,7 @@
       mode: 0755
 
   - name: make a second copy locally of undercloud.qcow2 in /virt-sdb/images
-    synchronize:
+    copy:
       src: "{{ kvm_images_path }}/undercloud.qcow2"
       dest: "/virt-sdb/images/undercloud.qcow2"
-      rsync_opts:
-        - "--sparse"
-      archive: no
+      remote_src: yes
