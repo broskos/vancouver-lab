@@ -15,6 +15,7 @@
 - hosts: servers
   gather_facts: no
   become: yes
+  serial: 4
   tasks:
 
   - name: put keys from .112 onto other servers

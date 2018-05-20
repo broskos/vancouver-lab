@@ -11,6 +11,7 @@
       --disk path="{{ kvm_images_path }}/env-{{ item }}-contrail.qcow2",device=disk,bus=virtio,format=qcow2
       --import --noautoconsole --vnc --autostart
       --name "env-{{item}}-contrail"
+      --cpu host-passthrough
       --network network="env-{{item}}-ospnet",model=virtio
       --network network="env-{{item}}-contrailnet",model=virtio
   args:

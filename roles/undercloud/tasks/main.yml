@@ -85,16 +85,22 @@
     }
     EOF'
     --run-command 'cat << EOF > /home/stack/deploy_rdo_contrail.sh
-    openstack overcloud deploy --templates tripleo-heat-templates \
+    source ~/stackrc
+    time openstack overcloud deploy --templates tripleo-heat-templates \
     -e docker_registry.yaml \
     -e tripleo-heat-templates/environments/network-isolation.yaml \
     -e tripleo-heat-templates/environments/docker.yaml \
-    -e tripleo-heat-templates/extraconfig/pre_deploy/rhel-registration/environment-rhel-registration.yaml \
     -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
     -e tripleo-heat-templates/environments/contrail/contrail-net.yaml \
     --roles-file tripleo-heat-templates/roles_data_contrail_aio.yaml
     EOF'
     --run-command 'chmod +x /home/stack/deploy_rdo_contrail.sh'
+    --run-command 'cat << EOF > /home/stack/import_and_introspect.sh
+    source ~/stackrc
+    openstack overcloud node import ~/instack-env.json
+    openstack overcloud node introspect --all-manageable --provide
+    EOF'
+    --run-command 'chmod +x /home/stack/import_and_introspect.sh'
   args:
     creates: "/etc/libvirt/qemu/env-{{ item }}-undercloud.xml"
   with_sequence: start=1 end={{ instances }}
@@ -107,6 +113,7 @@
       --disk path="{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2",device=disk,bus=virtio,format=qcow2
       --import --noautoconsole --vnc --autostart
       --name "env-{{item}}-undercloud"
+    --cpu host-passthrough
       --network bridge=br-labnet,model=virtio
       --network network="env-{{item}}-ospnet",model=virtio
   args:

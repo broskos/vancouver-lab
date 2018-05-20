@@ -99,6 +99,13 @@
   with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
+- name: set autostart for OSP network for each environment
+  virt_net:
+    name: "env-{{ item }}-ospnet"
+    autostart: yes
+  with_sequence: start=1 end={{ instances }}
+  when: destroy_environment is undefined
+
 - name: define Contrail network for each environment
   virt_net:
     command: define
@@ -115,6 +122,48 @@
   with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
+- name: set autostart for  Contrail network for each environment
+  virt_net:
+    name: "env-{{ item }}-contrailnet"
+    autostart: yes
+  with_sequence: start=1 end={{ instances }}
+  when: destroy_environment is undefined
+
+# update packages on host
+- name: upgrade all packages
+  yum: name=* state=latest
+  when: destroy_environment is undefined
+
+- name: Check for reboot hint.
+  shell: LAST_KERNEL=$(rpm -q --last kernel | awk 'NR==1{sub(/kernel-/,""); print $1}'); CURRENT_KERNEL=$(uname -r); if [ $LAST_KERNEL != $CURRENT_KERNEL ]; then echo 'reboot'; else echo 'no'; fi
+  ignore_errors: true
+  register: reboot_hint
+  when: destroy_environment is undefined
+
+- name: Rebooting ...
+  command: shutdown -r now "Reboot required for updated kernel"
+  async: 0
+  poll: 0
+  sudo: true
+  ignore_errors: true
+  when: destroy_environment is undefined and reboot_hint.stdout.find("reboot") != -1
+  register: rebooting
+
+- name: Wait for SSH on the Host
+  become: no
+  wait_for:
+    port: 22
+    host: "{{ inventory_hostname }}"
+    search_regex: OpenSSH
+    delay: 120
+    timeout: 600
+  delegate_to: localhost
+  when: destroy_environment is undefined and rebooting|changed
+
+- name: Set Host CPU profile to performance
+  command: cpupower frequency-set -g performance
+  when: destroy_environment is undefined
+
 # destroy networks
 - name: remove OSP network for each environment
   virt_net:
@@ -128,4 +177,8 @@
     state: absent
     name: "env-{{ item }}-contrailnet"
   with_sequence: start=1 end={{ instances }}
+  when: destroy_environment is defined and destroy_environment
+
+- name: Set Host CPU profile to powersave
+  command: cpupower frequency-set -g powersave
   when: destroy_environment is defined and destroy_environment

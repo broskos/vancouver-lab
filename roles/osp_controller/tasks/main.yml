@@ -10,6 +10,7 @@
       --ram "{{ ram }}" --vcpus "{{ vcpus }}" --os-variant rhel7
       --disk path="{{ kvm_images_path }}/env-{{ item }}-controller.qcow2",device=disk,bus=virtio,format=qcow2
       --import --noautoconsole --vnc --autostart
+      --cpu host-passthrough
       --name "env-{{item}}-controller"
       --network network="env-{{item}}-ospnet",model=virtio
   args:

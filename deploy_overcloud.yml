@@ -1,0 +1,17 @@
+- hosts: undercloud
+  become: no
+  tasks:
+
+  - name: import and introspect
+    shell: ~/import_and_introspect.sh
+    register: introspect_output
+
+  - debug:
+      var: introspect_output.stdout
+
+  - name: deploy overcloud
+    shell: ~/deploy_rdo_contrail.sh
+    register: deploy_output
+
+  - debug:
+      var: deploy_output.stdout

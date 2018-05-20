@@ -1,4 +1,4 @@
 ram: 16384
-vcpus: 4
+vcpus: 8
 disk: 50G
 
