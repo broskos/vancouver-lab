@@ -1,0 +1,8 @@
+disk_additional_disks:
+ - disk: /dev/sdb
+   fstype: ext4
+   mount_options: defaults,relatime
+   mount: /virt-sdb
+   user: root
+   group: root
+   disable_periodic_fsck: false

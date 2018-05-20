@@ -129,6 +129,28 @@
   with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
+# creeate and start pool for sdb, which should be mounted on /virt-sdb
+- name: define virt-sdb-pool
+  virt_pool:
+    command: define
+    name: virt-sdb-pool
+    xml: '{{ lookup("template", "virt-sdb-pool.j2") }}'
+
+- name: build virt-sdb-pool if it does not exist
+  virt_pool:
+    name: virt-sdb-pool
+    command: build
+
+- name: start virt-sdb-pool
+  virt_pool:
+    name: virt-sdb-pool
+    command: start
+
+- name: set virt-sdb-pool to autostart
+  virt_pool:
+    name: virt-sdb-pool
+    autostart: yes
+
 # update packages on host
 - name: upgrade all packages
   yum: name=* state=latest
