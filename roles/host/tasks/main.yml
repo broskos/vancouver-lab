@@ -130,26 +130,31 @@
   when: destroy_environment is undefined
 
 # creeate and start pool for sdb, which should be mounted on /virt-sdb
-- name: define virt-sdb-pool
+- name: define virt-sdb-images
   virt_pool:
     command: define
-    name: virt-sdb-pool
-    xml: '{{ lookup("template", "virt-sdb-pool.j2") }}'
+    name: virt-sdb-images
+    xml: '{{ lookup("template", "virt-sdb-images.j2") }}'
+  when: destroy_environment is undefined
+  ignore_errors: true
 
-- name: build virt-sdb-pool if it does not exist
+- name: build virt-sdb-images if it does not exist
   virt_pool:
-    name: virt-sdb-pool
+    name: virt-sdb-images
     command: build
+  when: destroy_environment is undefined
 
-- name: start virt-sdb-pool
+- name: start virt-sdb-images
   virt_pool:
-    name: virt-sdb-pool
-    command: start
+    name: virt-sdb-images
+    state: started
+  when: destroy_environment is undefined
 
-- name: set virt-sdb-pool to autostart
+- name: set virt-sdb-images to autostart
   virt_pool:
-    name: virt-sdb-pool
+    name: virt-sdb-images
     autostart: yes
+  when: destroy_environment is undefined
 
 # update packages on host
 - name: upgrade all packages
