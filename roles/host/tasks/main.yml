@@ -147,7 +147,7 @@
 - name: start virt-sdb-images
   virt_pool:
     name: virt-sdb-images
-    state: started
+    state: active
   when: destroy_environment is undefined
 
 - name: set virt-sdb-images to autostart
