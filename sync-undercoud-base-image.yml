@@ -38,7 +38,7 @@
       archive: no
     delegate_to: 10.10.16.112
 
-  - name: now make the second copy locally of undercloud.qcow2 in /virt-sdb/images
+  - name: make a second copy locally of undercloud.qcow2 in /virt-sdb/images
     synchronize:
       src: "{{ kvm_images_path }}/undercloud.qcow2"
       dest: "/virt-sdb/images/undercloud.qcow2"
