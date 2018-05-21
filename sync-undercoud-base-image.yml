@@ -10,7 +10,8 @@
     ignore_errors: yes
 
   - name: try to shrink image on source server
-    shell: virt-sparsify --in-place "{{ kvm_images_path }}/undercloud.qcow2"
+    shell: virt-sparsify --in-place "{{ kvm_images_path[1] }}/undercloud.qcow2"
+
 
 - hosts: servers
   gather_facts: no
@@ -31,8 +32,8 @@
 
   - name: distribute qcow2 file from 10.10.16.112 server to servers group
     synchronize:
-      src: "{{ kvm_images_path }}/undercloud.qcow2"
-      dest: "{{ kvm_images_path }}/undercloud.qcow2"
+      src: "{{ kvm_images_path[1] }}/undercloud.qcow2"
+      dest: "{{ kvm_images_path[1] }}/undercloud.qcow2"
       rsync_opts:
         - "--sparse"
       archive: yes
@@ -41,12 +42,20 @@
 
   - name: create images directory if needed
     file:
-      path: /virt-sdb/images
+      path: "{{ kvm_images_path[2] }}"
       state: directory
       mode: 0755
 
   - name: make a second copy locally of undercloud.qcow2 in /virt-sdb/images
     copy:
-      src: "{{ kvm_images_path }}/undercloud.qcow2"
-      dest: "/virt-sdb/images/undercloud.qcow2"
+      src: "{{ kvm_images_path[1] }}/undercloud.qcow2"
+      dest: "{{ kvm_images_path[2] }}/undercloud.qcow2"
       remote_src: yes
+
+  - name: distribute updated libvirt rpms
+    synchronize:
+      src: "/root/libvirt-3.19.0-15"
+      dest: "/root"
+      archive: yes
+    delegate_to: 10.10.16.112
+    tags: rpms

@@ -1,15 +1,15 @@
 # create
 
 - name: Create env-#-undercloud.qcow files from backing file undercloud.qcow2
-  command: qemu-img create -f qcow2 -b "{{ kvm_images_path }}/undercloud.qcow2" "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+  command: qemu-img create -f qcow2 -b "{{ kvm_images_path[item|int] }}/undercloud.qcow2" "{{ kvm_images_path[item|int] }}/env-{{ item }}-undercloud.qcow2"
   args:
-    creates: "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+    creates: "{{ kvm_images_path[item|int] }}/env-{{ item }}-undercloud.qcow2"
   with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: set undercloud lab ip address
   command: |
-    virt-customize -a "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2" --run-command 'cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
+    virt-customize -a "{{ kvm_images_path[item|int] }}/env-{{ item }}-undercloud.qcow2" --run-command 'cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
     DEVICE="eth0"
     ONBOOT="yes"
     TYPE="Ethernet"
@@ -28,7 +28,7 @@
 - name: set undercloud hostname and instack-env.json
   become: stack
   command: |
-    virt-customize -a "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+    virt-customize -a "{{ kvm_images_path[item|int] }}/env-{{ item }}-undercloud.qcow2"
     --hostname "env-{{ item }}-undercloud.local"
     --run-command 'cat << EOF > /home/stack/instack-env.json
     {
@@ -110,7 +110,7 @@
 - name: create virtual machine in kvm
   command: virt-install
       --ram "{{ ram }}" --vcpus "{{ vcpus }}" --os-variant rhel7
-      --disk path="{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2",device=disk,bus=virtio,format=qcow2
+      --disk path="{{ kvm_images_path[item|int] }}/env-{{ item }}-undercloud.qcow2",device=disk,bus=virtio,format=qcow2
       --import --noautoconsole --vnc --autostart
       --name "env-{{item}}-undercloud"
     --cpu host-passthrough
@@ -139,7 +139,8 @@
 
 - name: remove qcow file
   file:
-    path: "{{ kvm_images_path }}/env-{{ item }}-undercloud.qcow2"
+    path: "{{ kvm_images_path[item|int] }}/env-{{ item }}-undercloud.qcow2"
     state: absent
   with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment
+

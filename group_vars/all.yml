@@ -1,1 +1,8 @@
-kvm_images_path: /var/lib/libvirt/images
+kvm_images_path:
+  - /nothing_for_0
+  - /var/lib/libvirt/images
+  - /virt-sdb/images
+  - /var/lib/libvirt/images
+  - /virt-sdb/images
+  - /var/lib/libvirt/images
+  - /virt-sdb/images

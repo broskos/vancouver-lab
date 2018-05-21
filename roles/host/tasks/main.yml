@@ -138,11 +138,11 @@
   when: destroy_environment is undefined
   ignore_errors: true
 
-- name: build virt-sdb-images if it does not exist
-  virt_pool:
-    name: virt-sdb-images
-    command: build
-  when: destroy_environment is undefined
+#- name: build virt-sdb-images if it does not exist
+#  virt_pool:
+#    name: virt-sdb-images
+#    command: build
+#  when: destroy_environment is undefined
 
 - name: start virt-sdb-images
   virt_pool:
@@ -161,6 +161,10 @@
   yum: name=* state=latest
   when: destroy_environment is undefined
 
+- name: install libvirt with patch
+  shell: yum install -y /root/libvirt-3.19.0-15/*.rpm
+  ignore_errors: yes
+
 - name: Check for reboot hint.
   shell: LAST_KERNEL=$(rpm -q --last kernel | awk 'NR==1{sub(/kernel-/,""); print $1}'); CURRENT_KERNEL=$(uname -r); if [ $LAST_KERNEL != $CURRENT_KERNEL ]; then echo 'reboot'; else echo 'no'; fi
   ignore_errors: true
@@ -168,7 +172,7 @@
   when: destroy_environment is undefined
 
 - name: Rebooting ...
-  command: shutdown -r now "Reboot required for updated kernel"
+  command: sleep 2 && shutdown -r now "Reboot required for updated kernel"
   async: 0
   poll: 0
   sudo: true

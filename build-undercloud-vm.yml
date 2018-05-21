@@ -20,9 +20,9 @@
       dest: "{{ kvm_images_path}}"
 
   - name: Create empty qcow2 file to be target undercloud image
-    command: qemu-img create -f qcow2 "{{ kvm_images_path }}/undercloud.qcow2" "{{ disk }}"
+    command: qemu-img create -f qcow2 "{{ kvm_images_path[item|int] }}/undercloud.qcow2" "{{ disk }}"
     args:
-      creates: "{{ kvm_images_path }}/undercloud.qcow2"
+      creates: "{{ kvm_images_path[item|int] }}/undercloud.qcow2"
     notify:
     - populate undercloud.qcow2 file
     - remove cloud-init
@@ -35,7 +35,7 @@
   - name: create virtual machine in kvm for temp undercloud, place it on env-1-ospnet
     command: virt-install
         --ram "{{ ram }}" --vcpus "{{ vcpus }}" --os-variant rhel7
-        --disk path="{{ kvm_images_path }}/undercloud.qcow2",device=disk,bus=virtio,format=qcow2
+        --disk path="{{ kvm_images_path[item|int] }}/undercloud.qcow2",device=disk,bus=virtio,format=qcow2
         --import --noautoconsole --vnc --autostart
         --name "temp-undercloud"
         --network type=direct,source="{{ lab_nic }}",model=virtio
@@ -64,14 +64,14 @@
   handlers:
 
   - name: populate undercloud file
-    command: virt-resize --expand /dev/sda1 "{{ kvm_images_path }}/{{ centos_image }}" "{{ kvm_images_path }}/undercloud.qcow2"
+    command: virt-resize --expand /dev/sda1 "{{ kvm_images_path[item|int] }}/{{ centos_image }}" "{{ kvm_images_path[item|int] }}/undercloud.qcow2"
 
   - name: remove cloud-init
-    command: "virt-customize -a {{ kvm_images_path }}/undercloud.qcow2 --run-command 'yum remove cloud-init* -y' --root-password password:{{ root_password }}"
+    command: "virt-customize -a {{ kvm_images_path[item|int] }}/undercloud.qcow2 --run-command 'yum remove cloud-init* -y' --root-password password:{{ root_password }}"
 
   - name: setup eth0
     command: |
-      virt-customize -a "{{ kvm_images_path }}/undercloud.qcow2" --run-command 'cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
+      virt-customize -a "{{ kvm_images_path[item|int] }}/undercloud.qcow2" --run-command 'cat << EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
       DEVICE="eth0"
       ONBOOT="yes"
       TYPE="Ethernet"

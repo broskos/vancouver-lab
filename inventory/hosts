@@ -1,8 +1,8 @@
 [servers]
 10.10.16.110 instances=2 starting_ip=148
-#10.10.16.111 instances=6 starting_ip=154
-#10.10.16.112 instances=3 starting_ip=160
-#10.10.16.113 instances=3 starting_ip=163
+10.10.16.111 instances=2 starting_ip=154
+10.10.16.112 instances=2 starting_ip=160
+10.10.16.113 instances=2 starting_ip=163
 
 [servers:vars]
 ansible_user=root
@@ -50,8 +50,14 @@ ansible_user=root
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
 [undercloud]
-10.10.17.153
-10.10.17.152
+10.10.17.148
+10.10.17.149
+10.10.17.154
+10.10.17.155
+#10.10.17.160
+#10.10.17.161
+10.10.17.163
+10.10.17.164
 
 [undercloud:vars]
 ansible_user=stack

@@ -1,14 +1,14 @@
 - name: Create env-{{ item }}-controller.qcow2 file when qcow does not exist
-  command: qemu-img create -f qcow2 "{{ kvm_images_path }}/env-{{ item }}-controller.qcow2" "{{disk}}"
+  command: qemu-img create -f qcow2 "{{ kvm_images_path[item|int] }}/env-{{ item }}-controller.qcow2" "{{disk}}"
   args:
-    creates: "{{ kvm_images_path }}/env-{{ item }}-controller.qcow2"
+    creates: "{{ kvm_images_path[item|int] }}/env-{{ item }}-controller.qcow2"
   with_sequence: start=1 end={{ instances }}
   when: destroy_environment is undefined
 
 - name: create virtual machine in kvm
   command: virt-install
       --ram "{{ ram }}" --vcpus "{{ vcpus }}" --os-variant rhel7
-      --disk path="{{ kvm_images_path }}/env-{{ item }}-controller.qcow2",device=disk,bus=virtio,format=qcow2
+      --disk path="{{ kvm_images_path[item|int] }}/env-{{ item }}-controller.qcow2",device=disk,bus=virtio,format=qcow2
       --import --noautoconsole --vnc --autostart
       --cpu host-passthrough
       --name "env-{{item}}-controller"
@@ -53,7 +53,7 @@
 
 - name: remove qcow file
   file:
-    path: "{{ kvm_images_path }}/env-{{ item }}-controller.qcow2"
+    path: "{{ kvm_images_path[item|int] }}/env-{{ item }}-controller.qcow2"
     state: absent
   with_sequence: start=1 end={{ instances }}
   when: destroy_environment is defined and destroy_environment
