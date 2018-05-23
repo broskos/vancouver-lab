@@ -1,48 +1,87 @@
+#@IgnoreInspection BashAddShebang
 [servers]
-10.10.16.110 instances=2 starting_ip=148
-10.10.16.111 instances=2 starting_ip=154
-10.10.16.112 instances=2 starting_ip=160
-10.10.16.113 instances=2 starting_ip=163
+10.10.16.102 instances=2 starting_ip=101
+10.10.16.103 instances=1 starting_ip=103
+10.10.16.104 instances=2 starting_ip=104
+10.10.16.105 instances=2 starting_ip=106
+10.10.16.106 instances=2 starting_ip=108
+10.10.16.107 instances=2 starting_ip=110
+10.10.16.108 instances=1 starting_ip=112
+10.10.16.109 instances=2 starting_ip=113
+10.10.16.110 instances=2 starting_ip=115
+10.10.16.111 instances=2 starting_ip=117
+10.10.16.112 instances=2 starting_ip=119
+10.10.16.113 instances=2 starting_ip=121
+10.10.16.114 instances=2 starting_ip=123
+10.10.16.115 instances=2 starting_ip=125
+10.10.16.116 instances=2 starting_ip=127
+10.10.16.117 instances=2 starting_ip=129
+10.10.16.118 instances=2 starting_ip=131
+10.10.16.119 instances=2 starting_ip=133
+10.10.16.120 instances=2 starting_ip=135
+10.10.16.121 instances=2 starting_ip=137
+10.10.16.122 instances=2 starting_ip=139
+10.10.16.123 instances=1 starting_ip=141
+10.10.16.124 instances=1 starting_ip=142
+10.10.16.125 instances=2 starting_ip=144
+10.10.16.126 instances=2 starting_ip=146
+10.10.16.127 instances=2 starting_ip=148
+10.10.16.128 instances=2 starting_ip=150
+10.10.16.129 instances=2 starting_ip=152
+10.10.16.130 instances=2 starting_ip=154
+10.10.16.131 instances=2 starting_ip=156
+10.10.16.132 instances=2 starting_ip=158
+10.10.16.133 instances=2 starting_ip=160
+10.10.16.134 instances=2 starting_ip=162
+10.10.16.135 instances=2 starting_ip=164
+10.10.16.136 instances=2 starting_ip=166
+
+[disks]
+10.10.16.123
+10.10.16.132
+10.10.16.136
+10.10.16.129
 
 [servers:vars]
 ansible_user=root
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
 [testservers]
-#10.10.16.102 instances=6 starting_ip=101
-#10.10.16.103 instances=6 starting_ip=107
-#10.10.16.104 instances=6 starting_ip=113
-#10.10.16.105 instances=6 starting_ip=119
-#10.10.16.106 instances=6 starting_ip=125
-#10.10.16.107 instances=6 starting_ip=131
-#10.10.16.108 instances=6 starting_ip=137
-#10.10.16.109 instances=6 starting_ip=142
-#10.10.16.110 instances=6 starting_ip=148
-#10.10.16.111 instances=6 starting_ip=154
-#10.10.16.112 instances=3 starting_ip=160
-#10.10.16.113 instances=3 starting_ip=163
-#10.10.16.114 instances=3 starting_ip=166
-#10.10.16.115 instances=3 starting_ip=169
-#10.10.16.116 instances=3 starting_ip=172
-#10.10.16.117 instances=3 starting_ip=175
-#10.10.16.118 instances=3 starting_ip=178
-#10.10.16.119 instances=3 starting_ip=181
-#10.10.16.120 instances=6 starting_ip=184
-#10.10.16.121 instances=6 starting_ip=190
-#10.10.16.122 instances=6 starting_ip=196
-#10.10.16.123 instances=6 starting_ip=202
-#10.10.16.124 instances=6 starting_ip=208
-#10.10.16.125 instances=6 starting_ip=214
-#10.10.16.126 instances=6 starting_ip=220
-#10.10.16.127 instances=6 starting_ip=226
-#10.10.16.128 instances=6 starting_ip=232
-#10.10.16.129 instances=3 starting_ip=238
-#10.10.16.130 instances=3 starting_ip=241
-#10.10.16.131 instances=3 starting_ip=244
-#10.10.16.132 instances=3 starting_ip=247
-#10.10.16.133 instances=3 starting_ip=154
-#10.10.16.134 instances=3 starting_ip=154
-#10.10.16.135 instances=3 starting_ip=154
-#10.10.16.136 instances=3 starting_ip=154
+#10.10.16.102 instances=2 starting_ip=101
+#10.10.16.103 instances=2 starting_ip=107
+#10.10.16.104 instances=2 starting_ip=113
+#10.10.16.105 instances=2 starting_ip=119
+#10.10.16.106 instances=2 starting_ip=125
+#10.10.16.107 instances=2 starting_ip=131
+#10.10.16.108 instances=2 starting_ip=137
+#10.10.16.109 instances=2 starting_ip=142
+#10.10.16.110 instances=2 starting_ip=148
+#10.10.16.111 instances=2 starting_ip=154
+#10.10.16.112 instances=2 starting_ip=160
+#10.10.16.113 instances=2 starting_ip=163
+#10.10.16.114 instances=2 starting_ip=166
+#10.10.16.115 instances=2 starting_ip=169
+#10.10.16.116 instances=2 starting_ip=172
+#10.10.16.117 instances=2 starting_ip=175
+#10.10.16.118 instances=2 starting_ip=178
+#10.10.16.119 instances=2 starting_ip=181
+#10.10.16.120 instances=2 starting_ip=184
+#10.10.16.121 instances=2 starting_ip=190
+#10.10.16.122 instances=2 starting_ip=196
+#10.10.16.123 instances=2 starting_ip=202
+#10.10.16.124 instances=2 starting_ip=208
+#10.10.16.125 instances=2 starting_ip=214
+#10.10.16.126 instances=2 starting_ip=220
+#10.10.16.127 instances=2 starting_ip=226
+#10.10.16.128 instances=2 starting_ip=232
+#10.10.16.129 instances=2 starting_ip=238
+#10.10.16.130 instances=2 starting_ip=241
+#10.10.16.131 instances=2 starting_ip=244
+#10.10.16.132 instances=2 starting_ip=247
+#10.10.16.133 instances=2 starting_ip=154
+#10.10.16.134 instances=2 starting_ip=154
+#10.10.16.135 instances=2 starting_ip=154
+#10.10.16.136 instances=2 starting_ip=154
 
 
 [testservers:vars]
@@ -50,14 +89,74 @@ ansible_user=root
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
 [undercloud]
+10.10.17.101
+10.10.17.102
+10.10.17.103
+10.10.17.104
+10.10.17.105
+10.10.17.106
+10.10.17.107
+10.10.17.108
+10.10.17.109
+10.10.17.110
+10.10.17.111
+10.10.17.112
+10.10.17.113
+10.10.17.114
+10.10.17.115
+10.10.17.116
+10.10.17.117
+10.10.17.118
+10.10.17.119
+10.10.17.120
+10.10.17.121
+10.10.17.122
+10.10.17.123
+10.10.17.124
+10.10.17.125
+10.10.17.126
+10.10.17.127
+10.10.17.128
+10.10.17.129
+10.10.17.130
+10.10.17.131
+10.10.17.132
+10.10.17.133
+10.10.17.134
+10.10.17.135
+10.10.17.136
+10.10.17.137
+10.10.17.138
+10.10.17.139
+10.10.17.140
+10.10.17.141
+10.10.17.142
+10.10.17.143
+10.10.17.144
+10.10.17.145
+10.10.17.146
+10.10.17.147
 10.10.17.148
 10.10.17.149
+10.10.17.150
+10.10.17.151
+10.10.17.152
+10.10.17.153
 10.10.17.154
 10.10.17.155
-#10.10.17.160
-#10.10.17.161
+10.10.17.156
+10.10.17.157
+10.10.17.158
+10.10.17.159
+10.10.17.160
+10.10.17.161
+10.10.17.162
 10.10.17.163
 10.10.17.164
+10.10.17.165
+10.10.17.166
+10.10.17.167
+
 
 [undercloud:vars]
 ansible_user=stack

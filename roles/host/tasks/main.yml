@@ -135,7 +135,7 @@
     command: define
     name: virt-sdb-images
     xml: '{{ lookup("template", "virt-sdb-images.j2") }}'
-  when: destroy_environment is undefined
+  when: destroy_environment is undefined and instances >1
   ignore_errors: true
 
 #- name: build virt-sdb-images if it does not exist
@@ -148,13 +148,13 @@
   virt_pool:
     name: virt-sdb-images
     state: active
-  when: destroy_environment is undefined
+  when: destroy_environment is undefined and instances > 1
 
 - name: set virt-sdb-images to autostart
   virt_pool:
     name: virt-sdb-images
     autostart: yes
-  when: destroy_environment is undefined
+  when: destroy_environment is undefined and instances > 1
 
 # update packages on host
 - name: upgrade all packages
@@ -173,7 +173,7 @@
 
 - name: Rebooting ...
   command: sleep 2 && shutdown -r now "Reboot required for updated kernel"
-  async: 0
+  async: 1
   poll: 0
   sudo: true
   ignore_errors: true
@@ -189,7 +189,7 @@
     delay: 120
     timeout: 600
   delegate_to: localhost
-  when: destroy_environment is undefined and rebooting|changed
+  when: destroy_environment is undefined and rebooting is changed
 
 - name: Set Host CPU profile to performance
   command: cpupower frequency-set -g performance

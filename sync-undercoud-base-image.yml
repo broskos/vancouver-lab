@@ -9,8 +9,9 @@
       state: destroyed
     ignore_errors: yes
 
-  - name: try to shrink image on source server
-    shell: virt-sparsify --in-place "{{ kvm_images_path[1] }}/undercloud.qcow2"
+# Commenting this for now, I think it screws up the modified time
+#  - name: try to shrink image on source server
+#    shell: virt-sparsify --in-place "{{ kvm_images_path[1] }}/undercloud.qcow2"
 
 
 - hosts: servers
@@ -18,7 +19,7 @@
   become: yes
   serial: 4
   roles:
-    - ansible-disk
+    - { role: ansible-disk, when: instances > 1 }
   tasks:
 
 
@@ -45,12 +46,11 @@
       path: "{{ kvm_images_path[2] }}"
       state: directory
       mode: 0755
+    when: instances > 1
 
   - name: make a second copy locally of undercloud.qcow2 in /virt-sdb/images
-    copy:
-      src: "{{ kvm_images_path[1] }}/undercloud.qcow2"
-      dest: "{{ kvm_images_path[2] }}/undercloud.qcow2"
-      remote_src: yes
+    shell: cp --sparse=always -ua "{{ kvm_images_path[1] }}/undercloud.qcow2" "{{ kvm_images_path[2] }}/undercloud.qcow2"
+    when: instances > 1
 
   - name: distribute updated libvirt rpms
     synchronize:
