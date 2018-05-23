@@ -23,68 +23,20 @@
 10.10.16.122 instances=2 starting_ip=139
 10.10.16.123 instances=1 starting_ip=141
 10.10.16.124 instances=1 starting_ip=142
-10.10.16.125 instances=2 starting_ip=144
-10.10.16.126 instances=2 starting_ip=146
-10.10.16.127 instances=2 starting_ip=148
-10.10.16.128 instances=2 starting_ip=150
-10.10.16.129 instances=2 starting_ip=152
-10.10.16.130 instances=2 starting_ip=154
-10.10.16.131 instances=2 starting_ip=156
-10.10.16.132 instances=2 starting_ip=158
-10.10.16.133 instances=2 starting_ip=160
-10.10.16.134 instances=2 starting_ip=162
-10.10.16.135 instances=2 starting_ip=164
-10.10.16.136 instances=2 starting_ip=166
-
-[disks]
-10.10.16.123
-10.10.16.132
-10.10.16.136
-10.10.16.129
+10.10.16.125 instances=2 starting_ip=143
+10.10.16.126 instances=2 starting_ip=145
+10.10.16.127 instances=2 starting_ip=147
+10.10.16.128 instances=2 starting_ip=149
+10.10.16.129 instances=2 starting_ip=151
+10.10.16.130 instances=2 starting_ip=153
+10.10.16.131 instances=2 starting_ip=155
+10.10.16.132 instances=2 starting_ip=157
+10.10.16.133 instances=2 starting_ip=159
+10.10.16.134 instances=2 starting_ip=161
+10.10.16.135 instances=2 starting_ip=163
+10.10.16.136 instances=2 starting_ip=165
 
 [servers:vars]
-ansible_user=root
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-
-[testservers]
-#10.10.16.102 instances=2 starting_ip=101
-#10.10.16.103 instances=2 starting_ip=107
-#10.10.16.104 instances=2 starting_ip=113
-#10.10.16.105 instances=2 starting_ip=119
-#10.10.16.106 instances=2 starting_ip=125
-#10.10.16.107 instances=2 starting_ip=131
-#10.10.16.108 instances=2 starting_ip=137
-#10.10.16.109 instances=2 starting_ip=142
-#10.10.16.110 instances=2 starting_ip=148
-#10.10.16.111 instances=2 starting_ip=154
-#10.10.16.112 instances=2 starting_ip=160
-#10.10.16.113 instances=2 starting_ip=163
-#10.10.16.114 instances=2 starting_ip=166
-#10.10.16.115 instances=2 starting_ip=169
-#10.10.16.116 instances=2 starting_ip=172
-#10.10.16.117 instances=2 starting_ip=175
-#10.10.16.118 instances=2 starting_ip=178
-#10.10.16.119 instances=2 starting_ip=181
-#10.10.16.120 instances=2 starting_ip=184
-#10.10.16.121 instances=2 starting_ip=190
-#10.10.16.122 instances=2 starting_ip=196
-#10.10.16.123 instances=2 starting_ip=202
-#10.10.16.124 instances=2 starting_ip=208
-#10.10.16.125 instances=2 starting_ip=214
-#10.10.16.126 instances=2 starting_ip=220
-#10.10.16.127 instances=2 starting_ip=226
-#10.10.16.128 instances=2 starting_ip=232
-#10.10.16.129 instances=2 starting_ip=238
-#10.10.16.130 instances=2 starting_ip=241
-#10.10.16.131 instances=2 starting_ip=244
-#10.10.16.132 instances=2 starting_ip=247
-#10.10.16.133 instances=2 starting_ip=154
-#10.10.16.134 instances=2 starting_ip=154
-#10.10.16.135 instances=2 starting_ip=154
-#10.10.16.136 instances=2 starting_ip=154
-
-
-[testservers:vars]
 ansible_user=root
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 
@@ -155,8 +107,6 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 10.10.17.164
 10.10.17.165
 10.10.17.166
-10.10.17.167
-
 
 [undercloud:vars]
 ansible_user=stack
